@@ -1,16 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import cv2
 import numpy as np
 import mediapipe as mp
 import joblib
-import base64
 import time
-import pandas as pd
 from collections import deque, Counter
 
 app = FastAPI()
 
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,112 +18,118 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ Load trained model
 model = joblib.load("sign_model.pkl")
 
-print("🔥 MODEL FEATURES:", model.n_features_in_)
-
+# ✅ MediaPipe (FAST MODE)
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(max_num_hands=1)
+hands = mp_hands.Hands(
+    max_num_hands=1,
+    model_complexity=0
+)
 
+# 🔥 smoothing buffer
 prediction_buffer = deque(maxlen=5)
 
+# 🔥 word formation state
 current_word = ""
 last_letter = ""
 last_time = 0
 
 
-# ✅ 63 FEATURE BUILDER (x,y,z)
-def build_features(landmarks):
-    feature = []
-    for x, y, z in landmarks:
-        feature.append(x)
-        feature.append(y)
-        feature.append(z)
-    return feature
-
-
 @app.post("/predict")
-async def predict(data: dict):
+async def predict(file: UploadFile = File(...)):
     global current_word, last_letter, last_time
 
     try:
         print("\n🔥 API HIT")
 
-        image_data = data["image"]
-
-        # ✅ SAFE BASE64 DECODE
-        if "," in image_data:
-            image_data = image_data.split(",")[1]
-
-        image_bytes = base64.b64decode(image_data)
-        np_arr = np.frombuffer(image_bytes, np.uint8)
+        # ✅ FAST IMAGE READ (NO BASE64)
+        contents = await file.read()
+        np_arr = np.frombuffer(contents, np.uint8)
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
         if frame is None:
-            print("❌ Frame decode failed")
-            return {"sign": current_word, "letter": "", "confidence": 0}
+            return {"sign": current_word, "letter": ""}
+
+        # 🔥 resize → faster processing
+        frame = cv2.resize(frame, (320, 240))
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # 🔹 Detect hand
         result = hands.process(rgb)
 
-        print("Landmarks detected:", bool(result.multi_hand_landmarks))
+        print("Hand detected:", bool(result.multi_hand_landmarks))
 
         if result.multi_hand_landmarks:
 
             for hand_landmarks in result.multi_hand_landmarks:
 
+                # 🔥 STEP 1: collect landmarks
                 landmarks = [(lm.x, lm.y, lm.z) for lm in hand_landmarks.landmark]
 
-                feature = build_features(landmarks)
+                # 🔥 STEP 2: normalize (VERY IMPORTANT)
+                xs = [x for x, y, z in landmarks]
+                ys = [y for x, y, z in landmarks]
 
-                print("Feature length:", len(feature))
-                print("First 5:", feature[:5])
+                min_x, max_x = min(xs), max(xs)
+                min_y, max_y = min(ys), max(ys)
 
-                df = pd.DataFrame([feature])
+                feature = []
 
-                proba = model.predict_proba(df)[0]
-                pred = model.predict(df)[0].lower()
+                for x, y, z in landmarks:
+                    feature.append((x - min_x) / (max_x - min_x + 1e-6))
+                    feature.append((y - min_y) / (max_y - min_y + 1e-6))
+                    feature.append(z)
 
-                model_conf = np.max(proba)
+                print("Feature length:", len(feature))  # should be 63
 
-                print("Prediction:", pred)
-                print("Model confidence:", model_conf)
+                # 🔥 STEP 3: prediction
+                proba = model.predict_proba([feature])[0]
+                prediction = model.predict([feature])[0].lower()
 
-                # smoothing
-                prediction_buffer.append(pred)
+                # 🔥 STEP 4: smoothing
+                prediction_buffer.append(prediction)
 
                 most_common = Counter(prediction_buffer).most_common(1)[0][0]
                 freq = Counter(prediction_buffer)[most_common]
+                confidence = freq / len(prediction_buffer)
 
-                confidence = (freq / len(prediction_buffer)) * model_conf
+                print("Smoothed:", most_common, "Confidence:", confidence)
 
-                print("Final:", most_common, confidence)
+                # 🔥 reject unstable predictions
+                if confidence < 0.6:
+                    return {"sign": current_word, "letter": ""}
 
-                if confidence < 0.3:
-                    return {"sign": current_word, "letter": "", "confidence": 0}
+                prediction = most_common
 
                 current_time = time.time()
 
-                if most_common != last_letter and (current_time - last_time) > 1.0:
+                # 🔥 avoid repeated letters
+                if prediction != last_letter and (current_time - last_time) > 1.0:
 
-                    if most_common == "space":
+                    if prediction == "space":
                         current_word += " "
-                    elif most_common == "del":
-                        current_word = current_word[:-1]
-                    else:
-                        current_word += most_common
 
-                    last_letter = most_common
+                    elif prediction == "del":
+                        current_word = current_word[:-1]
+
+                    else:
+                        current_word += prediction
+
+                    last_letter = prediction
                     last_time = current_time
 
+                # ✅ send response
                 return {
                     "sign": current_word,
-                    "letter": most_common,
-                    "confidence": round(confidence * 100, 2),
+                    "letter": prediction,
+                    "confidence": round(confidence * 100, 2)
                 }
 
-        return {"sign": current_word, "letter": "", "confidence": 0}
+        return {"sign": current_word, "letter": ""}
 
     except Exception as e:
         print("❌ ERROR:", e)
-        return {"sign": current_word, "letter": "", "confidence": 0}
+        return {"sign": current_word, "letter": ""}
