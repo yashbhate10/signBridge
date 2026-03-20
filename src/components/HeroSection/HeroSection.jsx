@@ -1,11 +1,15 @@
 import React from 'react';
 import './HeroSection.css';
+import { useScrollAnimation } from '../../utils/useScrollAnimation';
 
 function HeroSection({ language }) {
+  const contentRef = useScrollAnimation('animate-in', 0.15);
+  const visualRef = useScrollAnimation('animate-in', 0.1);
+
   return (
     <section className="hero-section" id="home">
       <div className="container">
-        <div className="hero-content">
+          <div className="hero-content reveal reveal-left" ref={contentRef}>
           <div className="hero-badge">
             <span>✨</span>
             {language === 'mr'
@@ -55,7 +59,7 @@ function HeroSection({ language }) {
           </div>
         </div>
 
-        <div className="hero-visual">
+        <div className="hero-visual reveal reveal-right" ref={visualRef}>
           <div className="stats-grid">
             <div className="stat-card dark">
               <div className="stat-header">

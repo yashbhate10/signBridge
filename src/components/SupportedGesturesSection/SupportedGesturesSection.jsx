@@ -1,25 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SupportedGesturesSection.css';
 
 function SupportedGesturesSection({ language }) {
-  const gestures = [
-    { icon: '👋', en: 'Hello', mr: 'नमस्कार' },
-    { icon: '🙏', en: 'Thank You', mr: 'धन्यवाद' },
-    { icon: '👍', en: 'Yes', mr: 'हो' },
-    { icon: '✋', en: 'No', mr: 'नाही' },
-    { icon: '🆘', en: 'Help', mr: 'मदत' },
-    { icon: '🙂', en: 'Please', mr: 'कृपया' },
-    { icon: '💧', en: 'Water', mr: 'पाणी' },
-    { icon: '🍛', en: 'Food', mr: 'अन्न' },
-    { icon: '🏠', en: 'Home', mr: 'घर' },
-    { icon: '🤝', en: 'Friend', mr: 'मित्र' },
-    { icon: '📞', en: 'Call', mr: 'फोन करा' },
-    { icon: '🚶', en: 'Come', mr: 'या' },
-    { icon: '👉', en: 'Go', mr: 'जा' },
-    { icon: '🛑', en: 'Stop', mr: 'थांबा' },
-    { icon: '❤️', en: 'Love', mr: 'प्रेम' },
-    { icon: '😢', en: 'Sorry', mr: 'माफ करा' },
-  ];
+  const navigate = useNavigate();
 
   return (
     <section className="supported-gestures-section" id="gestures">
@@ -36,19 +20,56 @@ function SupportedGesturesSection({ language }) {
 
           <p className="section-subtitle">
             {language === 'mr'
-              ? 'अधिक शब्द, अधिक संवाद — AI द्वारे ओळखले जाणारे जेश्चर'
-              : 'More gestures, better communication — AI powered recognition'}
+              ? 'अक्षरे, संख्या आणि वाक्ये स्वतंत्रपणे पाहा'
+              : 'Explore letters, numbers, and phrases separately'}
           </p>
         </div>
 
-        <div className="gesture-grid">
-          {gestures.map((gesture) => (
-            <div className="gesture-card" key={gesture.en}>
-              <div className="gesture-icon">{gesture.icon}</div>
-              <h3>{language === 'mr' ? gesture.mr : gesture.en}</h3>
-              <p>{language === 'mr' ? gesture.en : gesture.mr}</p>
+        <div className="gesture-category-grid">
+          <div
+            className="category-card"
+            onClick={() => navigate('/gestures/letters')}
+          >
+            <div className="category-preview">
+              <img src="/sign/a.gif" alt="Letters" />
             </div>
-          ))}
+            <h3>{language === 'mr' ? 'अक्षरे' : 'Letters'}</h3>
+            <p>
+              {language === 'mr'
+                ? 'A ते Z पर्यंतची सर्व साइन पहा'
+                : 'View all alphabet signs from A to Z'}
+            </p>
+          </div>
+
+          <div
+            className="category-card"
+            onClick={() => navigate('/gestures/numbers')}
+          >
+            <div className="category-preview">
+              <img src="/sign/1.gif" alt="Numbers" />
+            </div>
+            <h3>{language === 'mr' ? 'संख्या' : 'Numbers'}</h3>
+            <p>
+              {language === 'mr'
+                ? '० ते ९ पर्यंतच्या सर्व संख्या पहा'
+                : 'View all number signs from 0 to 9'}
+            </p>
+          </div>
+
+          <div
+            className="category-card"
+            onClick={() => navigate('/gestures/phrases')}
+          >
+            <div className="category-preview">
+              <img src="/sign/hello.gif" alt="Phrases" />
+            </div>
+            <h3>{language === 'mr' ? 'वाक्ये / शब्द' : 'Phrases'}</h3>
+            <p>
+              {language === 'mr'
+                ? 'दैनंदिन संवादासाठी वापरली जाणारी जेश्चर'
+                : 'Daily communication gesture phrases'}
+            </p>
+          </div>
         </div>
       </div>
     </section>

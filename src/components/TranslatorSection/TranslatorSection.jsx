@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import './TranslatorSection.css';
 import WebcamFeed from '../WebcamFeed/WebcamFeed';
 import TextTranslator from '../TextTranslator/TextTranslator';
+import { useScrollAnimation } from '../../utils/useScrollAnimation';
 
 function TranslatorSection({ language }) {
   const [activeMode, setActiveMode] = useState('sign');
+  const headerRef = useScrollAnimation('animate-in', 0.15);
+  const selectorRef = useScrollAnimation('animate-in', 0.15);
+  const contentRef = useScrollAnimation('animate-in', 0.1);
 
   return (
     <section className="translator-section" id="demo">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal" ref={headerRef}>
           <h2 className="section-title">
             {language === 'mr' ? (
               <>
@@ -28,7 +32,7 @@ function TranslatorSection({ language }) {
           </p>
         </div>
 
-        <div className="mode-selector">
+        <div className="mode-selector reveal" ref={selectorRef}>
           <button
             className={`mode-btn ${activeMode === 'sign' ? 'active' : ''}`}
             onClick={() => setActiveMode('sign')}
@@ -46,7 +50,7 @@ function TranslatorSection({ language }) {
           </button>
         </div>
 
-        <div className="translator-content">
+        <div className="translator-content reveal" ref={contentRef}>
           {activeMode === 'sign' && <WebcamFeed language={language} />}
           {activeMode === 'text' && <TextTranslator language={language} />}
         </div>

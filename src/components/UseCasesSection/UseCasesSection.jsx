@@ -1,5 +1,6 @@
 import React from 'react';
 import './UseCasesSection.css';
+import { useScrollAnimation, useStaggerAnimation } from '../../utils/useScrollAnimation';
 
 function UseCasesSection({ language }) {
   const useCases = [
@@ -29,10 +30,14 @@ function UseCasesSection({ language }) {
     },
   ];
 
+  const headerRef = useScrollAnimation('animate-in', 0.2);
+  const gridRef = useStaggerAnimation(0.12);
+  const ctaRef = useScrollAnimation('animate-in', 0.3);
+
   return (
     <section className="usecases-section" id="usecases">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal" ref={headerRef}>
           <h2 className="section-title">{language === 'mr' ? 'वापर क्षेत्रे' : 'Use Cases'}</h2>
           <p className="section-subtitle">
             {language === 'mr'
@@ -46,7 +51,7 @@ function UseCasesSection({ language }) {
           </p>
         </div>
 
-        <div className="usecases-grid">
+        <div className="usecases-grid" ref={gridRef}>
           {useCases.map((useCase, index) => (
             <div className="usecase-card" key={index}>
               <div className="usecase-icon">{useCase.icon}</div>
@@ -56,7 +61,7 @@ function UseCasesSection({ language }) {
           ))}
         </div>
 
-        <div className="cta-section">
+        <div className="cta-section reveal-scale" ref={ctaRef}>
           <div className="cta-card">
             <h3>
               {language === 'mr'

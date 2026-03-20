@@ -1,11 +1,15 @@
 import React from 'react';
 import './ProblemSolutionSection.css';
+import { useScrollAnimation, useStaggerAnimation } from '../../utils/useScrollAnimation';
 
 function ProblemSolutionSection({ language }) {
+  const headerRef = useScrollAnimation('animate-in', 0.2);
+  const gridRef = useStaggerAnimation(0.12);
+
   return (
     <section className="problem-section">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal" ref={headerRef}>
           <h2 className="section-title">
             {language === 'mr' ? 'समस्या आणि उपाय' : 'Problem & Solution'}
           </h2>
@@ -16,7 +20,7 @@ function ProblemSolutionSection({ language }) {
           </p>
         </div>
 
-        <div className="problem-grid">
+        <div className="problem-grid" ref={gridRef}>
           <div className="problem-card">
             <h3>{language === 'mr' ? 'समस्या' : 'The Problem'}</h3>
             <p>

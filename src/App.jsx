@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 
 import Header from './components/Header/Header';
@@ -9,6 +10,7 @@ import ProblemSolutionSection from './components/ProblemSolutionSection/ProblemS
 import FeaturesSection from './components/FeaturesSection/FeaturesSection';
 import UseCasesSection from './components/UseCasesSection/UseCasesSection';
 import Footer from './components/Footer/Footer';
+import GestureCategoryPage from './components/GestureCategoryPage/GestureCategoryPage';
 
 function App() {
   const [language, setLanguage] = useState('en');
@@ -17,7 +19,7 @@ function App() {
     setLanguage((prev) => (prev === 'en' ? 'mr' : 'en'));
   };
 
-  return (
+  const HomePage = () => (
     <div className="app">
       <Header language={language} toggleLanguage={toggleLanguage} />
 
@@ -32,6 +34,21 @@ function App() {
 
       <Footer language={language} />
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route
+        path="/gestures/:type"
+        element={
+          <GestureCategoryPage
+            language={language}
+            toggleLanguage={toggleLanguage}
+          />
+        }
+      />
+    </Routes>
   );
 }
 

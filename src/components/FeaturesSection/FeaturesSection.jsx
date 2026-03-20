@@ -1,5 +1,6 @@
 import React from 'react';
 import './FeaturesSection.css';
+import { useScrollAnimation, useStaggerAnimation } from '../../utils/useScrollAnimation';
 
 function FeaturesSection({ language }) {
   const features = [
@@ -41,10 +42,13 @@ function FeaturesSection({ language }) {
     },
   ];
 
+  const headerRef = useScrollAnimation('animate-in', 0.2);
+  const gridRef = useStaggerAnimation(0.1);
+
   return (
     <section className="features-section" id="features">
       <div className="container">
-        <div className="section-header">
+        <div className="section-header reveal" ref={headerRef}>
           <h2 className="section-title">
             {language === 'mr' ? 'मुख्य वैशिष्ट्ये' : 'Core Features'}
           </h2>
@@ -62,7 +66,7 @@ function FeaturesSection({ language }) {
           </p>
         </div>
 
-        <div className="features-grid">
+        <div className="features-grid" ref={gridRef}>
           {features.map((feature, index) => (
             <div className="feature-card" key={index}>
               <div className="feature-icon">{feature.icon}</div>
@@ -81,3 +85,4 @@ function FeaturesSection({ language }) {
 }
 
 export default FeaturesSection;
+
