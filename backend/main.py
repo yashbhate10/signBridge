@@ -6,6 +6,8 @@ import mediapipe as mp
 import joblib
 import time
 from collections import deque, Counter
+import os
+import uvicorn
 
 app = FastAPI()
 
@@ -133,3 +135,7 @@ async def predict(file: UploadFile = File(...)):
     except Exception as e:
         print("❌ ERROR:", e)
         return {"sign": current_word, "letter": ""}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
