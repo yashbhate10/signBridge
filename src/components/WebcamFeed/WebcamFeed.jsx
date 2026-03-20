@@ -26,30 +26,42 @@ function WebcamFeed({ language }) {
   /////////////////////////
   // 🚀 API
   /////////////////////////
-  async function sendFrameAsync(formData) {
-    try {
-      const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
+const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
 
-      fetch(`${API_URL}/predict`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
-      });
+async function sendFrameAsync(formData) {
+  try {
+    const res = await fetch(`${API_URL}/predict`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "ngrok-skip-browser-warning": "true"
+      }
+    });
 
-      const data = await res.json();
-
-      if (!data || data.letter === undefined) return;
-
-      handleStablePrediction(data);
-      setConfidence(data.confidence || 80);
-
-    } catch (err) {
-      console.error(err);
-      setError("Backend connection failed");
+    // ✅ check response first
+    if (!res) {
+      console.error("No response from server");
+      return;
     }
+
+    if (!res.ok) {
+      console.error("API Error:", res.status);
+      return;
+    }
+
+    const data = await res.json();
+    console.log("API Response:", data);
+
+    if (!data || data.letter === undefined) return;
+
+    handleStablePrediction(data);
+    setConfidence(data.confidence || 80);
+
+  } catch (err) {
+    console.error("Fetch Error:", err);
+    setError("Backend connection failed");
   }
+}
 
   /////////////////////////
   // 🔥 60 FPS LOOP
