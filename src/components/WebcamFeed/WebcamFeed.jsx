@@ -28,14 +28,9 @@ function WebcamFeed({ language }) {
   /////////////////////////
   async function sendFrameAsync(formData) {
     try {
-      const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
-
-      fetch(`${API_URL}/predict`, {
+      const res = await fetch("http://127.0.0.1:4040/predict", {
         method: "POST",
-        body: formData,
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-        },
+        body: formData
       });
 
       const data = await res.json();
