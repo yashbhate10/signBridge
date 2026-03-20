@@ -28,7 +28,7 @@ function WebcamFeed({ language }) {
   /////////////////////////
   async function sendFrameAsync(formData) {
     try {
-      const res = await fetch("http://127.0.0.1:4040/predict", {
+      const res = await fetch("http://127.0.0.1:8000/predict", {
         method: "POST",
         body: formData
       });
