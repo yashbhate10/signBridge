@@ -6,10 +6,10 @@ function WebcamFeed({ language }) {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const intervalRef = useRef(null); // ✅ FIX
 
   const predictionHistoryRef = useRef([]);
   const lastLetterRef = useRef("");
+  const isProcessingRef = useRef(false); // ✅ prevents overlap
 
   const [cameraOn, setCameraOn] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,69 +21,84 @@ function WebcamFeed({ language }) {
   const [error, setError] = useState("");
 
   /////////////////////////
-  // 🚀 NON-BLOCKING API
+  // 🚀 API CALL
   /////////////////////////
+  async function sendFrameAsync(formData) {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        body: formData
+      });
 
-function sendFrameAsync(formData) {
+      const data = await res.json();
 
-  fetch("http://127.0.0.1:8000/predict", {
-    method: "POST",
-    body: formData
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data || data.letter === undefined) return;
+      if (!data || data.letter === undefined) return;
 
-    handleStablePrediction(data);
-    setConfidence(data.confidence || 80);
-  })
-  .catch(err => {
-    console.error(err);
-    setError("Backend connection failed");
-  });
-}
+      handleStablePrediction(data);
+      setConfidence(data.confidence || 80);
+
+    } catch (err) {
+      console.error(err);
+      setError("Backend connection failed");
+    }
+  }
 
   /////////////////////////
-  // 🔥 FAST PROCESSING LOOP
+  // 🔥 60 FPS LOOP (UI)
   /////////////////////////
-
   function startProcessing() {
 
-    intervalRef.current = setInterval(() => {
+    const processFrame = () => {
 
       const video = videoRef.current;
       const canvas = canvasRef.current;
 
-      if (!video || video.readyState !== 4) return;
+      if (!video || video.readyState !== 4) {
+        requestAnimationFrame(processFrame);
+        return;
+      }
 
       const ctx = canvas.getContext("2d");
 
-      // 🔥 SMALL SIZE = HUGE PERFORMANCE BOOST
+      // 🎯 Keep camera smooth (no resizing UI canvas frequently)
       canvas.width = 224;
       canvas.height = 224;
 
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // 🔥 LIGHT ENCODING
-      canvas.toBlob((blob) => {
-            if (!blob) return;
+      // 🧠 CALL BACKEND ONLY IF FREE
+      if (!isProcessingRef.current) {
+        isProcessingRef.current = true;
 
-            const formData = new FormData();
-            formData.append("file", blob);
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            isProcessingRef.current = false;
+            return;
+          }
 
-            sendFrameAsync(formData);
+          const formData = new FormData();
+          formData.append("file", blob);
 
-          }, "image/jpeg", 0.5);
+          await sendFrameAsync(formData);
 
-      sendFrameAsync(image);
+          // ⏳ small delay → prevents overload (~8–10 FPS backend)
+          setTimeout(() => {
+            isProcessingRef.current = false;
+          }, 120);
 
-    }, 600); // 🔥 BEST BALANCE
+        }, "image/jpeg", 0.5);
+      }
+
+      // 🔥 THIS MAKES UI 60 FPS
+      requestAnimationFrame(processFrame);
+    };
+
+    processFrame();
   }
 
   /////////////////////////
   // 🎥 CAMERA CONTROL
   /////////////////////////
-
   useEffect(() => {
 
     const startCamera = async () => {
@@ -96,6 +111,7 @@ function sendFrameAsync(formData) {
             facingMode: "user",
             width: { ideal: 640 },
             height: { ideal: 480 },
+            frameRate: { ideal: 60 } // 🔥 request 60 FPS
           },
           audio: false,
         });
@@ -105,7 +121,7 @@ function sendFrameAsync(formData) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
 
-        startProcessing(); // ✅ ONLY THIS LOOP
+        startProcessing();
 
       } catch (err) {
         console.error(err);
@@ -116,10 +132,6 @@ function sendFrameAsync(formData) {
     };
 
     const stopCamera = () => {
-
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current); // ✅ FIX
-      }
 
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(track => track.stop());
@@ -143,7 +155,6 @@ function sendFrameAsync(formData) {
   /////////////////////////
   // 🧠 STABILITY LOGIC
   /////////////////////////
-
   function handleStablePrediction(data) {
 
     const current = data.letter;
@@ -194,7 +205,6 @@ function sendFrameAsync(formData) {
   /////////////////////////
   // 🔊 SPEAK
   /////////////////////////
-
   const speakDetected = () => {
     if (language === "mr") {
       speakText(marathiText, "mr-IN");
@@ -206,7 +216,6 @@ function sendFrameAsync(formData) {
   /////////////////////////
   // 🎨 UI
   /////////////////////////
-
   return (
     <div className="webcam-feed">
 
