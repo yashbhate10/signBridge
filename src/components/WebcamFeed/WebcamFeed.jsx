@@ -187,7 +187,8 @@ async function sendFrameAsync(formData) {
   const completeSentence = () => {
     if (!sentence.trim()) return;
 
-    setHistory((prev) => [sentence, ...prev]);
+    const historyItem = language === 'mr' ? translateToMarathi(sentence.trim()) : sentence.trim();
+    setHistory((prev) => [historyItem, ...prev]);
     setSentence('');
     setCurrentLetter('');
   };
