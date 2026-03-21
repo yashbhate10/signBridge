@@ -38,6 +38,7 @@ function UseCasesSection({ language }) {
     <section className="usecases-section" id="usecases">
       <div className="container">
         <div className="section-header reveal" ref={headerRef}>
+          <span className="section-eyebrow">🏛️ Real-World Impact</span>
           <h2 className="section-title">{language === 'mr' ? 'वापर क्षेत्रे' : 'Use Cases'}</h2>
           <p className="section-subtitle">
             {language === 'mr'

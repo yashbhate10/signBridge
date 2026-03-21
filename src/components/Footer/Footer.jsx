@@ -10,7 +10,6 @@ function Footer({ language }) {
             <div className="brand-section">
               <div className="logo">
                 <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="40" height="40" rx="10" fill="var(--accent-orange)" />
                   <path
                     d="M12 20C12 16.5 14 13 20 13C26 13 28 16.5 28 20"
                     stroke="white"

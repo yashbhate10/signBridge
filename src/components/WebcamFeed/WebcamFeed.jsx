@@ -3,30 +3,25 @@ import './WebcamFeed.css';
 import { translateToMarathi, speakText } from '../../utils/translationUtils';
 
 function WebcamFeed({ language }) {
-
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const isProcessingRef = useRef(false);
 
   const predictionHistoryRef = useRef([]);
-  const lastLetterRef = useRef("");
+  const lastLetterRef = useRef('');
 
   const [cameraOn, setCameraOn] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const [currentLetter, setCurrentLetter] = useState("");
-  const [sentence, setSentence] = useState("");
-  const [marathiText, setMarathiText] = useState("");
+  const [currentLetter, setCurrentLetter] = useState('');
+  const [sentence, setSentence] = useState('');
+  const [marathiText, setMarathiText] = useState('');
   const [confidence, setConfidence] = useState(0);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  // 🆕 history
   const [history, setHistory] = useState([]);
 
-  /////////////////////////
-  // 🚀 API
-  /////////////////////////
-const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
+  const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
 
 async function sendFrameAsync(formData) {
   try {
@@ -38,38 +33,20 @@ async function sendFrameAsync(formData) {
       }
     });
 
-    // ✅ check response first
-    if (!res) {
-      console.error("No response from server");
-      return;
+      const data = await res.json();
+
+      if (!data || data.letter === undefined) return;
+
+      handleStablePrediction(data);
+      setConfidence(data.confidence || 80);
+    } catch (err) {
+      console.error(err);
+      setError('Backend connection failed');
     }
-
-    if (!res.ok) {
-      console.error("API Error:", res.status);
-      return;
-    }
-
-    const data = await res.json();
-    console.log("API Response:", data);
-
-    if (!data || data.letter === undefined) return;
-
-    handleStablePrediction(data);
-    setConfidence(data.confidence || 80);
-
-  } catch (err) {
-    console.error("Fetch Error:", err);
-    setError("Backend connection failed");
   }
-}
 
-  /////////////////////////
-  // 🔥 60 FPS LOOP
-  /////////////////////////
   function startProcessing() {
-
     const processFrame = () => {
-
       const video = videoRef.current;
       const canvas = canvasRef.current;
 
@@ -78,7 +55,7 @@ async function sendFrameAsync(formData) {
         return;
       }
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       canvas.width = 224;
       canvas.height = 224;
 
@@ -94,14 +71,14 @@ async function sendFrameAsync(formData) {
           }
 
           const formData = new FormData();
-          formData.append("file", blob);
+          formData.append('file', blob);
 
           await sendFrameAsync(formData);
 
           setTimeout(() => {
             isProcessingRef.current = false;
           }, 100);
-        }, "image/jpeg", 0.7);
+        }, 'image/jpeg', 0.7);
       }
 
       requestAnimationFrame(processFrame);
@@ -110,22 +87,18 @@ async function sendFrameAsync(formData) {
     processFrame();
   }
 
-  /////////////////////////
-  // 🎥 CAMERA
-  /////////////////////////
   useEffect(() => {
-
     const startCamera = async () => {
       try {
         setLoading(true);
-        setError("");
+        setError('');
 
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "user",
+            facingMode: 'user',
             width: { ideal: 1280 },
             height: { ideal: 720 },
-            frameRate: { ideal: 60 }
+            frameRate: { ideal: 60 },
           },
           audio: false,
         });
@@ -136,10 +109,9 @@ async function sendFrameAsync(formData) {
         await videoRef.current.play();
 
         startProcessing();
-
       } catch (err) {
         console.error(err);
-        setError("Unable to access camera.");
+        setError('Unable to access camera.');
       } finally {
         setLoading(false);
       }
@@ -147,7 +119,7 @@ async function sendFrameAsync(formData) {
 
     const stopCamera = () => {
       if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         videoRef.current.srcObject = null;
       }
     };
@@ -156,14 +128,9 @@ async function sendFrameAsync(formData) {
     else stopCamera();
 
     return () => stopCamera();
-
   }, [cameraOn]);
 
-  /////////////////////////
-  // 🧠 STABILITY
-  /////////////////////////
   function handleStablePrediction(data) {
-
     const current = data.letter;
 
     predictionHistoryRef.current.push(current);
@@ -173,11 +140,11 @@ async function sendFrameAsync(formData) {
     }
 
     const freq = {};
-    predictionHistoryRef.current.forEach(l => {
+    predictionHistoryRef.current.forEach((l) => {
       freq[l] = (freq[l] || 0) + 1;
     });
 
-    let stable = "";
+    let stable = '';
     let max = 0;
 
     for (let key in freq) {
@@ -188,58 +155,63 @@ async function sendFrameAsync(formData) {
     }
 
     if (max >= 3 && stable !== lastLetterRef.current) {
-
       let output = stable;
 
-      if (stable === "space") output = " ";
-      else if (stable === "del") {
-        setSentence(prev => prev.slice(0, -1));
+      if (stable === 'space') output = ' ';
+      else if (stable === 'del') {
+        setSentence((prev) => prev.slice(0, -1));
         lastLetterRef.current = stable;
         return;
       }
 
       setCurrentLetter(output);
-      setSentence(prev => prev + output);
+      setSentence((prev) => prev + output);
       setMarathiText(translateToMarathi(stable));
 
       lastLetterRef.current = stable;
     }
   }
 
-  /////////////////////////
-  // 🔊 SPEAK
-  /////////////////////////
   const speakDetected = () => {
-    if (language === "mr") {
-      speakText(marathiText, "mr-IN");
+    if (language === 'mr') {
+      speakText(marathiText, 'mr-IN');
     } else {
-      speakText(sentence, "en-US");
+      speakText(sentence, 'en-US');
     }
   };
 
-  /////////////////////////
-  // 🆕 UI FUNCTIONS
-  /////////////////////////
   const removeLastLetter = () => {
-    setSentence(prev => prev.slice(0, -1));
+    setSentence((prev) => prev.slice(0, -1));
   };
 
   const completeSentence = () => {
     if (!sentence.trim()) return;
 
-    setHistory(prev => [sentence, ...prev]);
-    setSentence("");
-    setCurrentLetter("");
+    setHistory((prev) => [sentence, ...prev]);
+    setSentence('');
+    setCurrentLetter('');
   };
 
-  /////////////////////////
-  // 🎨 UI
-  /////////////////////////
   return (
     <div className="webcam-feed">
-
       <div className="webcam-container">
         <div className="video-wrapper">
+          {/* Corner brackets for scanner feel */}
+          <div className="corner-tr"></div>
+          <div className="corner-bl"></div>
+
+          {/* Live label */}
+          {cameraOn && !loading && !error && (
+            <div className="video-label">
+              <span className="video-label-dot"></span>
+              LIVE DETECTION
+            </div>
+          )}
+
+          {/* Scan line when camera on */}
+          {cameraOn && !loading && !error && (
+            <div className="scan-overlay"></div>
+          )}
 
           <video
             ref={videoRef}
@@ -248,10 +220,9 @@ async function sendFrameAsync(formData) {
             muted
             playsInline
           />
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-          <canvas ref={canvasRef} style={{ display: "none" }} />
-
-          {!cameraOn && (
+          {!cameraOn && !loading && !error && (
             <div className="camera-placeholder">
               <div className="placeholder-icon">📷</div>
               <p>{language === 'mr' ? 'कॅमेरा सुरू करा' : 'Start camera to begin detection'}</p>
@@ -261,7 +232,7 @@ async function sendFrameAsync(formData) {
           {loading && (
             <div className="camera-placeholder">
               <div className="placeholder-icon">⏳</div>
-              <p>{language === 'mr' ? 'लोड होत आहे...' : 'Loading...'}</p>
+              <p>{language === 'mr' ? 'लोड होत आहे...' : 'Initializing camera...'}</p>
             </div>
           )}
 
@@ -271,14 +242,13 @@ async function sendFrameAsync(formData) {
               <p>{error}</p>
             </div>
           )}
-
         </div>
 
         <div className="controls">
-          <button className="btn btn-primary" onClick={() => setCameraOn(prev => !prev)}>
+          <button className="btn btn-primary" onClick={() => setCameraOn((prev) => !prev)}>
             {cameraOn
-              ? language === 'mr' ? 'कॅमेरा बंद करा' : 'Stop Camera'
-              : language === 'mr' ? 'कॅमेरा सुरू करा' : 'Start Camera'}
+              ? language === 'mr' ? '📷 कॅमेरा बंद करा' : '■ Stop Camera'
+              : language === 'mr' ? '📷 कॅमेरा सुरू करा' : '▶ Start Camera'}
           </button>
         </div>
       </div>
@@ -286,74 +256,66 @@ async function sendFrameAsync(formData) {
       <div className="translation-panel">
         <div className="panel-header">
           <h3>{language === 'mr' ? 'अनुवाद आउटपुट' : 'Translation Output'}</h3>
+          <span className="panel-badge">
+            <span className="video-label-dot"></span>
+            LIVE
+          </span>
         </div>
 
         <div className="output-display">
-
-          {/* Always visible */}
-          <div className="detected-sign">
-            <span className="label">Detected Letter</span>
-            <span className="text">
-              {currentLetter
-                ? (currentLetter === " " ? "␣ (space)" : currentLetter)
-                : "—"}
-            </span>
-          </div>
-
-          <div className="marathi-translation">
-            <span className="label">Sentence</span>
-            <span className="text">
-              {sentence || (language === 'mr' ? 'जेश्चरची प्रतीक्षा...' : 'Waiting for gesture...')}
-            </span>
-          </div>
-
-          <div className="confidence-bar">
-            <span className="label">Confidence</span>
-            <div className="progress">
-              <div className="progress-fill" style={{ width: `${confidence}%` }}></div>
+          <div className="output-card">
+            <div className="detected-sign">
+              <span className="label">Detected Letter</span>
+              <span className="text">
+                {currentLetter ? (currentLetter === ' ' ? '␣' : currentLetter) : '—'}
+              </span>
             </div>
-            <span className="percentage">{confidence}%</span>
           </div>
 
-          {/* Controls */}
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+          <div className="output-card">
+            <div className="marathi-translation">
+              <span className="label">Sentence</span>
+              <span className="text sentence-text">
+                {sentence || (language === 'mr' ? 'जेश्चरची प्रतीक्षा...' : 'Waiting for gesture...')}
+              </span>
+            </div>
+          </div>
 
+          <div className="output-card">
+            <div className="confidence-bar">
+              <span className="label">Confidence — {confidence}%</span>
+              <div className="progress">
+                <div className="progress-fill" style={{ width: `${confidence}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="action-row">
             <button className="btn btn-secondary" onClick={removeLastLetter}>
               ⌫ Delete
             </button>
-
             <button className="btn btn-success" onClick={completeSentence}>
-              ✅ Complete
+              ✓ Done
             </button>
-
-            <button className="btn btn-secondary speak-btn" onClick={speakDetected}>
+            <button className="btn btn-secondary" onClick={speakDetected}>
               🔊 Speak
             </button>
-
           </div>
 
-          {/* History */}
-          <div style={{ marginTop: "20px" }}>
-            <span className="label">History</span>
-
+          <div className="history-card">
+            <div className="history-card-header">
+              <span className="label">History</span>
+            </div>
             {history.length === 0 ? (
-              <p style={{ opacity: 0.6 }}>No sentences yet</p>
+              <p className="history-empty">No sentences yet</p>
             ) : (
-              <ul style={{ listStyle: "none", padding: 0 }}>
+              <ul className="history-list">
                 {history.map((item, index) => (
-                  <li key={index} style={{
-                    background: "#f5f5f5",
-                    padding: "8px",
-                    borderRadius: "8px",
-                    marginTop: "5px"
-                  }}>
-                    {item}
-                  </li>
+                  <li key={index} className="history-item">{item}</li>
                 ))}
               </ul>
             )}
           </div>
-
         </div>
       </div>
     </div>

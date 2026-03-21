@@ -10,18 +10,20 @@ function ProblemSolutionSection({ language }) {
     <section className="problem-section">
       <div className="container">
         <div className="section-header reveal" ref={headerRef}>
+          <span className="section-eyebrow">
+            {language === 'mr' ? '💡 प्रकल्प उद्देश' : '💡 Mission'}
+          </span>
           <h2 className="section-title">
             {language === 'mr' ? 'समस्या आणि उपाय' : 'Problem & Solution'}
           </h2>
           <p className="section-subtitle">
-            {language === 'mr'
-              ? 'हा प्रकल्प का महत्त्वाचा आहे'
-              : 'Why this project matters'}
+            {language === 'mr' ? 'हा प्रकल्प का महत्त्वाचा आहे' : 'Why this project matters'}
           </p>
         </div>
 
         <div className="problem-grid" ref={gridRef}>
           <div className="problem-card">
+            <div className="problem-icon">⚠️</div>
             <h3>{language === 'mr' ? 'समस्या' : 'The Problem'}</h3>
             <p>
               {language === 'mr'
@@ -31,6 +33,7 @@ function ProblemSolutionSection({ language }) {
           </div>
 
           <div className="problem-card highlight">
+            <div className="problem-icon">✅</div>
             <h3>{language === 'mr' ? 'उपाय' : 'Our Solution'}</h3>
             <p>
               {language === 'mr'
@@ -40,6 +43,7 @@ function ProblemSolutionSection({ language }) {
           </div>
 
           <div className="problem-card">
+            <div className="problem-icon">🚀</div>
             <h3>{language === 'mr' ? 'का चांगले?' : 'Why Better?'}</h3>
             <p>
               {language === 'mr'

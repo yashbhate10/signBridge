@@ -49,6 +49,9 @@ function FeaturesSection({ language }) {
     <section className="features-section" id="features">
       <div className="container">
         <div className="section-header reveal" ref={headerRef}>
+          <span className="section-eyebrow">
+            ⚡ {language === 'mr' ? 'मुख्य क्षमता' : 'Core Capabilities'}
+          </span>
           <h2 className="section-title">
             {language === 'mr' ? 'मुख्य वैशिष्ट्ये' : 'Core Features'}
           </h2>

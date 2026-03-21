@@ -1,123 +1,100 @@
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
+/* ── Features Section — Light Theme ── */
 .features-section {
-  padding: 92px 0;
-  background: transparent;
+  padding: 110px 0;
+  background:
+    radial-gradient(ellipse at 90% 10%, rgba(20, 184, 166, 0.07), transparent 40%),
+    linear-gradient(180deg, #f1f5fb 0%, #f8fbff 100%);
   position: relative;
 }
 
+/* ── Grid ── */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
 }
 
+/* ── Cards ── */
 .feature-card {
   position: relative;
+  padding: 28px 26px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 8px 28px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
   overflow: hidden;
-  padding: 28px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 2px solid rgba(47, 143, 134, 0.12);
-  box-shadow: var(--shadow-md);
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: fadeUp 0.8s ease both;
 }
 
+/* Teal top border reveal on hover */
 .feature-card::before {
   content: '';
   position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--accent-teal), var(--accent-orange), transparent);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #14b8a6, #38bdf8);
   opacity: 0;
-  transition: opacity 0.35s ease;
-  animation: shimmer 2s infinite;
-  background-size: 200% 100%;
+  transition: opacity 0.24s ease;
+  border-radius: 22px 22px 0 0;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 48px rgba(47, 143, 134, 0.18);
-  border-color: rgba(47, 143, 134, 0.25);
+  transform: translateY(-5px);
+  border-color: rgba(20, 184, 166, 0.2);
+  box-shadow:
+    0 20px 56px rgba(15, 23, 42, 0.1),
+    0 0 0 1px rgba(20, 184, 166, 0.08);
 }
 
-.feature-card:hover::before {
-  opacity: 1;
-}
+.feature-card:hover::before { opacity: 1; }
 
+/* ── Icon ── */
 .feature-icon {
-  width: 62px;
-  height: 62px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
-  margin-bottom: 18px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(44, 122, 123, 0.15), rgba(47, 143, 134, 0.08));
-  font-size: 1.8rem;
-  transition: all 0.35s ease;
-  border: 1px solid rgba(47, 143, 134, 0.1);
+  margin-bottom: 20px;
+  border-radius: 16px;
+  background: #f0fdfa;
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  font-size: 1.6rem;
+  transition: transform 0.2s ease;
 }
 
-.feature-card:hover .feature-icon {
-  transform: scale(1.15) rotate(8deg);
-  background: linear-gradient(135deg, rgba(44, 122, 123, 0.25), rgba(244, 161, 36, 0.15));
-  box-shadow: 0 8px 20px rgba(47, 143, 134, 0.2);
-}
+.feature-card:hover .feature-icon { transform: scale(1.08); }
 
 .feature-title {
   margin: 0 0 6px;
   font-family: 'Manrope', sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.12rem;
   font-weight: 800;
-  transition: color 0.3s ease;
-}
-
-.feature-card:hover .feature-title {
-  color: var(--accent-teal);
+  color: #0f172a;
 }
 
 .feature-subtitle {
   margin-bottom: 10px;
-  color: var(--accent-teal);
+  color: #0f766e;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
 .feature-description {
   margin: 0;
-  line-height: 1.8;
-  color: var(--text-secondary);
+  color: #475569;
+  line-height: 1.76;
+  font-size: 0.93rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .features-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .features-section { padding: 80px 0; }
 }

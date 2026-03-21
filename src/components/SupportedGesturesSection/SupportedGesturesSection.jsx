@@ -39,6 +39,7 @@ function SupportedGesturesSection({ language }) {
                 ? 'A ते Z पर्यंतची सर्व साइन पहा'
                 : 'View all alphabet signs from A to Z'}
             </p>
+            <span className="card-arrow">Explore →</span>
           </div>
 
           <div
@@ -54,6 +55,7 @@ function SupportedGesturesSection({ language }) {
                 ? '० ते ९ पर्यंतच्या सर्व संख्या पहा'
                 : 'View all number signs from 0 to 9'}
             </p>
+            <span className="card-arrow">Explore →</span>
           </div>
 
           <div
@@ -69,6 +71,7 @@ function SupportedGesturesSection({ language }) {
                 ? 'दैनंदिन संवादासाठी वापरली जाणारी जेश्चर'
                 : 'Daily communication gesture phrases'}
             </p>
+            <span className="card-arrow">Explore →</span>
           </div>
         </div>
       </div>
