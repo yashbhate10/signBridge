@@ -18,21 +18,15 @@ function GestureCategoryPage({ language }) {
 
     const phrases = [
         { label: language === 'mr' ? 'नमस्कार' : 'Hello', image: '/sign/hello.gif' },
-        { label: language === 'mr' ? 'धन्यवाद' : 'Thank You', image: '/sign/thank-you.gif' },
+        { label: language === 'mr' ? 'धन्यवाद' : 'Thank You', image: '/sign/thankyou.gif' },
         { label: language === 'mr' ? 'हो' : 'Yes', image: '/sign/yes.gif' },
         { label: language === 'mr' ? 'नाही' : 'No', image: '/sign/no.gif' },
         { label: language === 'mr' ? 'मदत' : 'Help', image: '/sign/help.gif' },
-        { label: language === 'mr' ? 'कृपया' : 'Please', image: '/sign/please.gif' },
-        { label: language === 'mr' ? 'पाणी' : 'Water', image: '/sign/water.gif' },
-        { label: language === 'mr' ? 'अन्न' : 'Food', image: '/sign/food.gif' },
-        { label: language === 'mr' ? 'घर' : 'Home', image: '/sign/home.gif' },
-        { label: language === 'mr' ? 'मित्र' : 'Friend', image: '/sign/friend.gif' },
-        { label: language === 'mr' ? 'फोन करा' : 'Call', image: '/sign/call.gif' },
-        { label: language === 'mr' ? 'या' : 'Come', image: '/sign/come.gif' },
-        { label: language === 'mr' ? 'जा' : 'Go', image: '/sign/go.gif' },
-        { label: language === 'mr' ? 'थांबा' : 'Stop', image: '/sign/stop.gif' },
         { label: language === 'mr' ? 'प्रेम' : 'Love', image: '/sign/love.gif' },
-        { label: language === 'mr' ? 'माफ करा' : 'Sorry', image: '/sign/sorry.gif' },
+        { label: language === 'mr' ? 'शुभ' : 'Good', image: '/sign/good.gif' },
+        { label: language === 'mr' ? 'सकाळ ' : 'Morning', image: '/sign/morning.gif' },
+        { label: language === 'mr' ? 'रात्र' : 'Night', image: '/sign/night.gif' },
+
     ];
 
     let pageTitle = '';
