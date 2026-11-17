@@ -1,0 +1,12 @@
+__pycache__/
+venv/
+Input/
+dataset/
+dataset_csv/
+*.csv
+train-model.py
+collect_data.py
+generate_csv.py
+merge_dataset.py
+gif_generator.py
+speak.py
