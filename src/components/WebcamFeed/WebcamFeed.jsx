@@ -21,22 +21,21 @@ function WebcamFeed({ language }) {
 
   const [history, setHistory] = useState([]);
 
-  const API_URL = "https://outfly-earringed-roberta.ngrok-free.dev";
+  const API_URL = import.meta.env.VITE_API_URL || 'https://signbridge-api-o8fk.onrender.com';
 
 async function sendFrameAsync(formData) {
   try {
     const res = await fetch(`${API_URL}/predict`, {
       method: "POST",
       body: formData,
-      headers: {
-        "ngrok-skip-browser-warning": "true"
-      }
+      signal: AbortSignal.timeout(20000),
     });
 
       const data = await res.json();
 
-      if (!data || data.letter === undefined) return;
+      if (!res.ok || !data || data.letter === undefined) return;
 
+      setError('');
       handleStablePrediction(data);
       setConfidence(data.confidence || 80);
     } catch (err) {
