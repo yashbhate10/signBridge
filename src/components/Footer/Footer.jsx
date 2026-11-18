@@ -55,10 +55,8 @@ function Footer({ language }) {
 
             <div className="link-group">
               <h4>{language === 'mr' ? 'टीम' : 'Team'}</h4>
-              <span className="team-name">Sakshi Ghadage</span>
               <span className="team-name">Yash Bhate</span>
               <span className="team-name">Aditya Harale</span>
-              <span className="team-name">Swapnil Gangate</span>
             </div>
           </div>
         </div>

@@ -13,10 +13,8 @@ function About() {
 
         <h3>Our Team</h3>
         <ul>
-          <li>Sakshi Ghadage</li>
           <li>Yash Bhate</li>
           <li>Aditya Harale</li>
-          <li>Swapnil Gangate</li>
         </ul>
 
         <h3>Contact</h3>
